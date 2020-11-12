@@ -1,28 +1,29 @@
 #Author: Erfan Hosseini
 import glob
-import re
+import utm
 
-path = '/*.txt'
+utm_data = [16,'T'] #example: chicago
+path = '*.txt'
 files = glob.glob(path)
-x_min = 100000000
-y_min = 100000000
-x_max = -100000000
-y_max = -100000000
+lat_min = 100000000
+long_min = 100000000
+lat_max = -100000000
+long_max = -100000000
 for name in files:
     with open(name, 'r') as f1:
         a = f1.readlines()
         for i in range(len(a)):
             line_sequence = a[i].split()
-            if float(line_sequence[0]) < x_min:
-                x_min = float(line_sequence[0])
-            if float(line_sequence[0]) > x_max:
-                x_max = float(line_sequence[0])
-            if float(line_sequence[1]) < y_min:
-                y_min = float(line_sequence[1])
-            if float(line_sequence[1]) > y_max:
-                y_max = float(line_sequence[1])
-            a[i] = re.sub('\s+', ',', a[i])
-            a[i] = a[i][:-1]
+            v = utm.to_latlon(round(float(line_sequence[0])),round(float(line_sequence[1])), utm_data[0],utm_data[1])
+            if v[0] < lat_min:
+                lat_min = v[0]
+            if v[0] > lat_max:
+                lat_max = v[0]
+            if v[1] < long_min:
+                long_min = v[1]
+            if v[1] > long_max:
+                long_max = v[1]
+            a[i] = str(v[0])+","+str(v[1])+","+str(round(float(line_sequence[2])))
             if i != len(a) -1:
                 a[i] = str(i + 1)+ "," + a[i] + "\n"
             else:
@@ -32,4 +33,4 @@ for name in files:
         f2.writelines(a)
         f2.close()
 
-print("X_min:",x_min,' ',"Y_min:",y_min,'-',"X_max:",x_max,' ',"Y_max",y_max)
+print("lat_min:",lat_min,' ',"long_min:",long_min,'-',"lat_max:",lat_max,' ',"long_max",long_max)
